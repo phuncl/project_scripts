@@ -1,31 +1,34 @@
 import os
 import glob as g
 from photometry.ds9 import (
-    setUpDs9,
+    setupDs9,
     ds9Display
     )
 
 ds9_name = 'my_ds9'
-setUpDs9(ds9_name)
+setupDs9(ds9_name)
 image_list = g.glob('**/*.fts', recursive=True)
 
 # preset cwd to appropriate folder
-cwd = os.getcwd()
-print('Current working directory:\n cwd')
-change_dir = input('Is this the correct directory? (y/n)')
+
+dir_check = False
 while not dir_check:
+    cwd = os.getcwd()
+    print('Current working directory:', cwd)
+    change_dir = input('Is this the correct directory? (y/n): ')
     if change_dir.lower() == 'y':
-        dir_check == 1
-    elif change_dir.lower == 'n':
+        dir_check = True
+    elif change_dir.lower() == 'n':
         new_dir = input('Enter desired directory (absolute):\n')
         os.chdir(new_dir)
     else:
         print('Invalid input!')
-        change_dir = input('Is this the correct directory? (y/n)')
 
+print('Creating junk folder...')
 if not os.path.exists('junk'):
     os.mkdir('junk/')
 
+print('Populating image list...')
 for image in image_list:
     # display the image, print name and path within 'data' directory
     ds9Display(ds9_name, image)
@@ -52,5 +55,3 @@ for image in image_list:
         print('Image moved to junk')
     else:
         print('Hurray!')
-
-
