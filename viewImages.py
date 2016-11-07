@@ -5,12 +5,7 @@ from photometry.ds9 import (
     ds9Display
     )
 
-ds9_name = 'my_ds9'
-setupDs9(ds9_name)
-image_list = g.glob('**/*.fts', recursive=True)
-
-# preset cwd to appropriate folder
-
+# check and set cwd to appropriate folder
 dir_check = False
 while not dir_check:
     cwd = os.getcwd()
@@ -24,11 +19,16 @@ while not dir_check:
     else:
         print('Invalid input!')
 
+print('Populating image list...')
+ds9_name = 'my_ds9'
+setupDs9(ds9_name)
+image_list = g.glob('**/*.fts', recursive=True)
+
 print('Creating junk folder...')
 if not os.path.exists('junk'):
     os.mkdir('junk/')
 
-print('Populating image list...')
+print('Beginning image analysis.')
 for image in image_list:
     # display the image, print name and path within 'data' directory
     ds9Display(ds9_name, image)
@@ -55,3 +55,5 @@ for image in image_list:
         print('Image moved to junk')
     else:
         print('Hurray!')
+
+print('All images analysed!')
