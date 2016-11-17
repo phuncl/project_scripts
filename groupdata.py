@@ -26,10 +26,9 @@ def sort_in_folder():
                 print(object_id)
 
                 # create/open csv file for object
-                target
                 writefilename = 'sorted_' + str(file_prefix) + '_' + str(object_id) + '.csv'
                 print(writefilename)
-                grouptocsv = open(writefilename, 'w+')
+                grouptocsv = open(writefilename, 'a')
 
                 # attach exposure time to line and write to file
                 exposure = filename.split('-')[2]
@@ -70,4 +69,6 @@ for filtername in FILTERS:
         sort_in_folder()
         print(directory, 'in', filtername, 'filter organised.')
         os.chdir(CWD)
-    print(filtername, 'complete!\nStarting next filter...')        
+    print(filtername, 'complete!')
+
+print('All files sorted! Exiting...')

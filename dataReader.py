@@ -80,7 +80,7 @@ def combine_standards():
                 for object in objects_list:
                     #from existing file, write data to new file, append flux and filter to end
                     datafile = open(str(CWD + '/' + filter + '/' + name + '/' + object), 'r')
-                    combinedfile = open(CWD+'/CombinedData/Standards/' + object, 'w+')
+                    combinedfile = open(CWD+'/CombinedData/Standards/' + object, 'a')
                     print('Opened combined file for' + filter + name + object)
 
                     for line in datafile:
