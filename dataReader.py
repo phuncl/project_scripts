@@ -88,7 +88,7 @@ def combine_standards():
                         flux = get_fluxed(datafromline) #takes a list!
                         if flux != 0:
                             #caution, get rid of endline characters in line
-                            writeline = line[:-2] + '  ' + str(flux) + '  ' + filter
+                            writeline = line[:-1] + '  ' + str(flux) + '  ' + filter + '\r\n'
                             combinedfile.write(writeline)
                     combinedfile.close()
                     print(object + ' complete')
@@ -106,7 +106,7 @@ SCIENCE_TARGETS = get_sciencetargets()
 STANDARDS = get_standards()
 print('Science Targets are:',SCIENCE_TARGETS)
 print('Standard objects are:',STANDARDS)
-time.sleep(10)
+time.sleep(5)
 if not os.path.exists('CombinedData'):
     os.mkdir('CombinedData')
     os.mkdir('CombinedData/Science')

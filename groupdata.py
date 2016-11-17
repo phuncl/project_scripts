@@ -23,16 +23,16 @@ def sort_in_folder():
             if line[0] != '#':
                 # name object
                 object_id = line.split('  ')[1]
-                print(object_id)
+                print('Object ID:', object_id)
 
                 # create/open csv file for object
                 writefilename = 'sorted_' + str(file_prefix) + '_' + str(object_id) + '.csv'
-                print(writefilename)
+                print(writefilename, 'is being updated')
                 grouptocsv = open(writefilename, 'a')
 
                 # attach exposure time to line and write to file
                 exposure = filename.split('-')[2]
-                writeline = line[:-1] + '  ' + exposure[1:] #gets rid of E at start of name
+                writeline = line[:-1] + '  ' + exposure[1:] + '\r\n' #gets rid of E at start of name
                 grouptocsv.write(writeline)
                 grouptocsv.close()
         readfile.close()
