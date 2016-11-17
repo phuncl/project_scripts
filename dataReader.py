@@ -1,11 +1,14 @@
-"""Describe how the program works"""
+"""
+Collection of functions that will perform photometry
+on the data that we obtain from the telescope
+"""
 
-import math
 import glob as g
 import numpy as np
 import os
 import time
 
+#Global Constants
 FILTERS = ['B', 'V', 'R', 'I']
 CWD = os.getcwd()
 
@@ -21,17 +24,19 @@ def get_fluxed(list):
         return 0
 
 def instr_mag(flux):
+    """calculate the instrumental magnitude using flux"""
     mag = np.log10(flux) * -2.5
     return mag
 
-def arraysplitter(arrayname):
+def arraysplitter(filename):
+    """Split data from a phot file into lists for easier use"""
     bjd_list = []
     object_list = []
     data_list = []
-
     # Open the data file
     datafile = open(filename, 'r')
     for line in datafile:
+        #extract data and append to appropriate list
         newline = line.split('  ')
         bjd_list.append(float(newline[0]))
         object_list.append(str(newline[1]))
@@ -40,6 +45,8 @@ def arraysplitter(arrayname):
     return bjd_list,object_list,data_list
 
 def get_sciencetargets():
+    """Obtain science targets from text file
+    useful once own data obtained"""
     science_targets = []
     datafile = open("science_targets.txt", 'r')
     for line in datafile:
@@ -48,8 +55,9 @@ def get_sciencetargets():
     return science_targets
 
 def get_standards():
+    """Retrieve standard stars using R filter as reference"""
     os.chdir('R/')
-    subdirectories = os.listdir('.')
+    subdirectories = os.listdir('.') #list dirs in cwd
     standards = []
     for entry in subdirectories:
         if '.' not in entry:
@@ -59,23 +67,27 @@ def get_standards():
     return standards
 
 def combine_standards():
-
+    """Collate a standard star's data from each filter into one folder"""
     for filter in FILTERS:
         for name in STANDARDS:
+            #exception in case all images for a standard were inadequate
             try:
+                #go to standard star's directory and get list of CSV files
                 os.chdir(filter+'/'+name+'/')
                 objects_list = g.glob('sorted*')
                 print(objects_list)
                 time.sleep(.1)
                 for object in objects_list:
+                    #from existing file, write data to new file, append flux and filter to end
                     datafile = open(str(CWD + '/' + filter + '/' + name + '/' + object), 'r')
                     combinedfile = open(CWD+'/CombinedData/Standards/' + object, 'w+')
                     print('Opened combined file for' + filter + name + object)
 
                     for line in datafile:
                         datafromline = line.split('  ')
-                        flux = get_fluxed(datafromline)
+                        flux = get_fluxed(datafromline) #takes a list!
                         if flux != 0:
+                            #caution, get rid of endline characters in line
                             writeline = line[:-2] + '  ' + str(flux) + '  ' + filter
                             combinedfile.write(writeline)
                     combinedfile.close()
@@ -86,9 +98,9 @@ def combine_standards():
             print(name + ' complete')
         print(filter + ' complete')
     return 0
-#########################################################
-#########################################################
-#########################################################
+##########################################################
+################ TESTING THE FUNCTION ####################
+##########################################################
 
 SCIENCE_TARGETS = get_sciencetargets()
 STANDARDS = get_standards()
