@@ -64,7 +64,7 @@ for filtername in FILTERS:
     subdirs = subdir_listing()
     print(subdirs)
     print(os.getcwd())
-    #navigate to each object folder
+    # navigate to each object folder, and run sort_in_folder function
     for directory in subdirs:
         os.chdir(filtername+directory+'/')
         sort_in_folder()
