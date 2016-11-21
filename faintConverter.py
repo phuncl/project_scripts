@@ -17,4 +17,4 @@ for row in range(0,dimensions[0]):
 
 print(std_table)
 
-np.savetxt('ing_standards.csv', std_table, delimiter='  ', fmt='%s')
+np.savetxt('ing_standards.csv', std_table, delimiter=',', fmt='%s')
