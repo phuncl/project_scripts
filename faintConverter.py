@@ -1,20 +1,24 @@
-import numpy as np
 import time
+import csv
 
-datafile = open('ing_standards.txt', 'r')
-std_raw = np.loadtxt(datafile, dtype='str', skiprows=2)
+datafile = open('ing_standards_temp.txt', 'r')
+USEDCOLS = [0,7,9,13,15]
+outfile = open('ing_standards.csv','w')
 
-dimensions = std_raw.shape
-std_table = np.zeros(dimensions, dtype='<U14')
+for line in datafile:
+    if '0' in line:
+        templine = line.split(' ')
+        tempdata = []
 
-for row in range(0,dimensions[0]):
-    for column in range(0,dimensions[1]):
-        entry = std_raw[row][column]
-        value = entry[2:-1]
-        print(entry,value)
-        #time.sleep(1)
-        std_table[row][column] = value
+        for element in templine:
+            if element != '':
+                tempdata.append(element)
 
-print(std_table)
+        data = []
+        for col in USEDCOLS:
+            data.append(tempdata[col])
 
-np.savetxt('ing_standards.csv', std_table, delimiter=',', fmt='%s')
+        writetarget = csv.writer(outfile, delimiter=',')
+        writetarget.writerows([data])
+
+outfile.close()
