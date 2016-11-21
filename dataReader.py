@@ -16,9 +16,10 @@ def get_fluxed(list):
     #is it overexposed
     max_count = float(list[-2])
     exposure = int(list[-1])
+    counts = float(list[6])
     if max_count <= 45000:
-        #convert counts into flux
-        flux = (max_count)/float(exposure)
+        # convert counts into flux
+        flux = counts/float(exposure)
         return flux
     else:
         return 0
@@ -50,7 +51,8 @@ def get_sciencetargets():
     science_targets = []
     datafile = open("science_targets.txt", 'r')
     for line in datafile:
-        science_targets.append(line[:-1])
+        if line != '':
+            science_targets.append(line[:-1])
     datafile.close()
     return science_targets
 
@@ -81,7 +83,7 @@ def combine_standards():
                     #from existing file, write data to new file, append flux and filter to end
                     datafile = open(str(CWD + '/' + filter + '/' + name + '/' + object), 'r')
                     combinedfile = open(CWD+'/CombinedData/Standards/' + object, 'a')
-                    print('Opened combined file for' + filter + name + object)
+                    print('Opened combined file for ' + filter + '/' + name + '/' + object)
 
                     for line in datafile:
                         datafromline = line.split('  ')
@@ -100,6 +102,34 @@ def combine_standards():
     return 0
 
 def combine_science():
+    """Collate data for all science objects into combined files"""
+    for filter in FILTERS:
+        for name in SCIENCE_TARGETS:
+            # exceptions in case files do not exist
+            try:
+                os.chdir(filter+'/'+name+'/')
+                objects_list = g.glob('sorted*')
+                for object in objects_list:
+                    # from existing file, write data to new file, append flux and filter to end
+                    datafile = open(str(CWD + '/' + filter + '/' + name + '/' + object), 'r')
+                    combinedfile = open(CWD + '/CombinedData/Science/' + object, 'a')
+                    print('Opened combined file for ' + filter + '/' + name + '/' + object)
+
+                    for line in datafile:
+                        datafromline = line.split('  ')
+                        flux = get_fluxed(datafromline)  # takes a list!
+                        if flux != 0:
+                            # caution, get rid of endline characters in line
+                            writeline = line[:-1] + '  ' + str(flux) + '  ' + filter + '\r\n'
+                            combinedfile.write(writeline)
+                    combinedfile.close()
+                    print(object + ' complete')
+                os.chdir(CWD)
+            except:
+                print(object, ' was not found.\nPhotometry may have failed for this object.')
+            print(name + ' complete')
+        print(filter + ' complete')
+    return 0
 
 
 ##########################################################
@@ -117,6 +147,13 @@ if not os.path.exists('CombinedData'):
     os.mkdir('CombinedData/Standards')
 
 combine_standards()
+print("""
+
+BEGINNING SCIENCE DATA ANALYSIS...
+
+""")
+time.sleep(5)
+combine_science()
 
 """
 filename = '/media/sf_LinuxShare/CSVcheck/Testtest.txt'
