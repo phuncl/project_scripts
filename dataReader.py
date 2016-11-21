@@ -98,6 +98,10 @@ def combine_standards():
             print(name + ' complete')
         print(filter + ' complete')
     return 0
+
+def combine_science():
+
+
 ##########################################################
 ################ TESTING THE FUNCTION ####################
 ##########################################################
