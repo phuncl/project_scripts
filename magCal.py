@@ -65,8 +65,10 @@ for viewing in all_standards:
 
         #find the standard star in the landolt standards dataframe pandas has created
         #Find relevant matrix element from knowing star name and filter, extract
-        column = FILTERCOLUMNINDEX(filter)
+        column = FILTERCOLUMNINDEX[filter]
         #find row of particular standard star and retrieve element corresponding to correct filter.
-        mag = readstandards.loc[[standardname]][column]
+        magrow = readstandards.loc[[standardname]]
+        magelement = magrow[column]
+        
 
 
