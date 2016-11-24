@@ -7,6 +7,7 @@ outfile = open('ing_standards.csv','w')
 
 for line in datafile:
     if '0' in line:
+        standardname = line[117:]
         templine = line.split(' ')
         tempdata = []
 
@@ -17,6 +18,8 @@ for line in datafile:
         data = []
         for col in USEDCOLS:
             data.append(tempdata[col])
+
+        data.append(standardname[:-1])
 
         writetarget = csv.writer(outfile, delimiter=',')
         writetarget.writerows([data])
