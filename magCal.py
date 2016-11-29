@@ -120,3 +120,6 @@ for viewing in all_standards:
         else:
             print('Something has gone wrong, filter name invalid, exiting...')
             break
+
+
+# now do linear regression on all the data pairs and write to file (CSV)
