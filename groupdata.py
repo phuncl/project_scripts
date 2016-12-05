@@ -6,6 +6,7 @@ each line.
 
 import glob as g
 import os
+import csv
 
 FILTERS = ['B/','V/','R/','I/']
 CWD = os.getcwd()
@@ -18,33 +19,48 @@ def sort_in_folder():
         target = filename.split('.')[0]
         file_prefix = target.split('-')[0]
         readfile = open(filename, 'r')
-        for line in readfile:
+        for templine in readfile:
             # Headers line in photometry files begin with #, want to ignore
-            if line[0] != '#':
+            if templine[0] != '#':
+                line = templine[:-1].split('  ')
                 # name object
-                object_id = line.split('  ')[1]
-                print('Object ID:', object_id)
+                object_id = line[1]
 
                 # create/open csv file for object
                 writefilename = 'sorted_' + str(file_prefix) + '_' + str(object_id) + '.csv'
-                print(writefilename, 'is being updated')
+                if not os.path.isfile(writefilename):
+                    print(writefilename, 'is being created...')
+                    grouptocsv = open(writefilename, 'w')
+                    output = csv.writer(grouptocsv, dialect='excel')
+
+                    headers = ['#BJD','OBJECT_ID','X','Y','RSI','RSO','COUNTS','COUNTS_ERR','AIRMASS','FLAG','COUNTS_MAX']
+                    output.writerow(headers)
+                    grouptocsv.close()
+
+                print(writefilename, 'is being updated...')
                 grouptocsv = open(writefilename, 'a')
+                outputwrite = csv.writer(grouptocsv, dialect='excel')
 
                 # attach exposure time to line and write to file
-                exposure = filename.split('-')[2]
-                writeline = line[:-1] + '  ' + exposure[1:] + '\r\n' #gets rid of E at start of name
-                grouptocsv.write(writeline)
+                exposure = int((filename.split('-')[2])[1:])
+
+                outlist = []
+                for element in line:
+                    outlist.append(element)
+                outlist.append(exposure)
+
+                outputwrite.writerow(outlist)
                 grouptocsv.close()
         readfile.close()
 
-"""
+'''
 Want to scan through B,V,R,I folders within a data folder automatically.
 This program should be launched from within the data folder.
-"""
+'''
 
 def subdir_listing():
     # obtain a list of all subdirectories
-    subdirectories_temp = os.listdir('.') #list dirs in that filter - should be same for all filters!
+    subdirectories_temp = os.listdir('.') # list dirs in that filter - should be same for all filters!
     subdirectories = []
     for entry in subdirectories_temp:
         if '.' not in entry:
