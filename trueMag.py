@@ -9,13 +9,13 @@ import numpy as np
 
 def instr_mag(flux):
     """calculate the instrumental magnitude using flux"""
-    mag = np.log10(flux) * -2.5
+    mag = np.log10(float(flux)) * -2.5
     return mag
 
 
 ATMOSPHERECONSTANTS = {'B': 0.2283, 'V': 0.1120, 'R': 0.0914, 'I': 0.0197}
 
-os.chdir('/media/sf_LinuxShare/CSVcheck/CombinedData/Science')
+os.chdir('/media/sf_LinuxShare/data/20161009/CombinedData/Science')
 
 ALL_FILES = g.glob('sorted*')
 
@@ -23,7 +23,7 @@ print('Files are being sorted...')
 time.sleep(2)
 
 # open calibration files to read
-os.chdir('/media/sf_LinuxShare/CSVcheck/CombinedData/Standards')
+os.chdir('/media/sf_LinuxShare/data/20161009/CombinedData/Standards')
 
 B_calibration = open('B_Filter_Calibration.csv', 'r')
 V_calibration = open('V_Filter_Calibration.csv', 'r')
@@ -73,13 +73,15 @@ for rowI in I_cal:
 # now have a list of slope, intercept, rvalue, pvalue, stderror for each filter
 # called B_cal_list, V_cal_list etc
 
-os.chdir('/media/sf_LinuxShare/CSVcheck/CombinedData/Science')
+os.chdir('/media/sf_LinuxShare/data/20161009/CombinedData/Science')
 
 for scienceobject in ALL_FILES:
 
-    viewfile = open(scienceobject, 'r')
+    viewfile1 = open(scienceobject, 'r')
     # reads each line of file
-    viewascsv = csv.reader(viewfile, dialect='excel')
+    viewascsv1 = csv.reader(viewfile1, dialect='excel')
+    # skips header lines
+    next(viewascsv1)
 
     writehere = open('truemags_' + scienceobject[7:], 'w')
     writer = csv.writer(writehere)
@@ -88,9 +90,16 @@ for scienceobject in ALL_FILES:
     starname = scienceobject[7:-4]
     # get magnitude for each filter from flux in each filter
     object_mags = []
-    for line1 in viewascsv:
+    for line1 in viewascsv1:
+
         # create a list with raw mag for each filter, order B V R I
-        object_mags.append(instr_mag(line1[-4]))
+        object_mags.append(float(instr_mag(line1[-2])))
+
+    viewfile1.close()
+
+    viewfile = open(scienceobject, 'r')
+    viewascsv = csv.reader(viewfile, dialect='excel')
+    next(viewascsv)
 
     for line in viewascsv:
 
@@ -100,30 +109,36 @@ for scienceobject in ALL_FILES:
         # NEXT STEP - WRITE TRUE MAGNITUDES TO A LIST AND SAVE TO CSV!!!
 
         if line[-1] == 'B':
-            temp1 = object_mags[0] - B_cal_list[1] - (B_cal_list[0] * (object_mags[0] - object_mags[2]))
-            temp2 = (ATMOSPHERECONSTANTS['B'] * line[8])
+            temp1 = object_mags[0] - float(B_cal_list[1]) - (float(B_cal_list[0]) * ((object_mags[0]) - object_mags[2]))
+            temp2 = (ATMOSPHERECONSTANTS['B'] * float(line[8]))
             true_magnitude = temp1 - temp2
 
         elif line[-1] == 'V':
-            temp1 = object_mags[1] - V_cal_list[1] - (V_cal_list[0] * (object_mags[1] - object_mags[3]))
-            temp2 = (ATMOSPHERECONSTANTS['V'] * line[8])
+            temp1 = object_mags[1] - float(V_cal_list[1]) - (float(V_cal_list[0]) * (object_mags[1] - object_mags[3]))
+            temp2 = (ATMOSPHERECONSTANTS['V'] * float(line[8]))
             true_magnitude = temp1 - temp2
 
         elif line[-1] == 'R':
-            temp1 = object_mags[2] - R_cal_list[1] - (R_cal_list[0] * (object_mags[0] - object_mags[2]))
-            temp2 = (ATMOSPHERECONSTANTS['R'] * line[8])
+            temp1 = object_mags[2] - float(R_cal_list[1]) - (float(R_cal_list[0]) * (object_mags[0] - object_mags[2]))
+            temp2 = (ATMOSPHERECONSTANTS['R'] * float(line[8]))
             true_magnitude = temp1 - temp2
 
         elif line[-1] == 'I':
-            temp1 = object_mags[3] - I_cal_list[1] - (I_cal_list[0] * (object_mags[1] - object_mags[3]))
-            temp2 = (ATMOSPHERECONSTANTS['I'] * line[8])
+            temp1 = object_mags[3] - float(I_cal_list[1]) - (float(I_cal_list[0]) * (object_mags[1] - object_mags[3]))
+            temp2 = (ATMOSPHERECONSTANTS['I'] * float(line[8]))
             true_magnitude = temp1 - temp2
 
         else:
             print('Oops, something went wrong! Invalid filter name, exiting...')
             break
 
-        writer.writerow([starname, line[-1], true_magnitude])
+        templist = [starname, line[-1], true_magnitude]
+        print(templist)
+        writer.writerow(templist)
+
+    print('File written for', scienceobject)
 
     writehere.close()
     viewfile.close()
+
+print('Program complete. Exiting...')
