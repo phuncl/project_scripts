@@ -11,6 +11,7 @@ import csv
 import time
 import numpy as np
 from scipy import stats
+from matplotlib import pyplot
 
 # Estimate peak wavelengths:  => Extinction (mag/airmass)
 #
@@ -50,9 +51,7 @@ def rhs(colour1, colour2):
     return float(colour1) - float(colour2)
 
 
-# slope, intercept, r_value, p_value, std_err = calibrate(xaxis_B, yaxis_B)
-# get an array for this from data
-# repeat for other colours (write to file perhaps?)
+# create lists for axis data
 
 X_AXIS_B = []
 Y_AXIS_B = []
@@ -80,6 +79,7 @@ FILENAME = open('ing_standards.csv', 'r')
 CATALOGUE = csv.reader(FILENAME, dialect='excel')
 print('Collecting standard star data...')
 time.sleep(2)
+
 for line in CATALOGUE:
     STANDARD_DICT[line[5]] = line[:5]
     # create dictionary of standards, standard name maps to list of data
@@ -182,5 +182,13 @@ for i in range(1, 5):
     time.sleep(0.5)
 
     openfile.close()
+
+# create plots of each filter data
+pyplot.plot(X_AXIS_I, Y_AXIS_I, 'ro')
+pyplot.xlabel('V-I')
+pyplot.ylabel('Magnitude')
+pyplot.show()
+
+
 
 print('Science has been successful, please continue this trend!')
