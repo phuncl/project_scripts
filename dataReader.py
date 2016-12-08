@@ -169,8 +169,7 @@ def combine_science():
                         flux = get_fluxed(line)  # takes a list!
                         if flux != 0:
                             line.append(flux)
-                            line.append(filter)
-                            print(line)
+                            line.append(flux)
                             combinedwriter.writerow(line)
                     combinedfile.close()
                     print(object + ' complete')
