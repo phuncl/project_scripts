@@ -17,7 +17,7 @@ ATMOSPHERECONSTANTS = {'B': 0.2283, 'V': 0.1120, 'R': 0.0914, 'I': 0.0197}
 
 os.chdir('/media/sf_LinuxShare/data/20161009/CombinedData/Science')
 
-ALL_FILES = g.glob('sorted*')
+ALL_FILES = g.glob('medians*')
 
 print('Files are being sorted...')
 time.sleep(2)
