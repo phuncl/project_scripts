@@ -15,20 +15,23 @@ def instr_mag(flux):
 
 ATMOSPHERECONSTANTS = {'B': 0.2283, 'V': 0.1120, 'R': 0.0914, 'I': 0.0197}
 
-os.chdir('/media/sf_LinuxShare/data/20161009/CombinedData/Science')
+os.chdir('/media/sf_LinuxShare/CSVcheck/CombinedData/Science')
 
-ALL_FILES = g.glob('medians*')
+ALL_FILES = g.glob('sorted*')
 
 print('Files are being sorted...')
 time.sleep(2)
 
 # open calibration files to read
-os.chdir('/media/sf_LinuxShare/data/20161009/CombinedData/Standards')
+os.chdir('/media/sf_LinuxShare/CSVcheck/CombinedData/Standards')
 
 B_calibration = open('B_Filter_Calibration.csv', 'r')
 V_calibration = open('V_Filter_Calibration.csv', 'r')
 R_calibration = open('R_Filter_Calibration.csv', 'r')
 I_calibration = open('I_Filter_Calibration.csv', 'r')
+
+# Read the calibration files and put the data in a list
+# to work with
 
 B_cal = csv.reader(B_calibration, dialect='excel')
 
@@ -73,14 +76,14 @@ for rowI in I_cal:
 # now have a list of slope, intercept, rvalue, pvalue, stderror for each filter
 # called B_cal_list, V_cal_list etc
 
-os.chdir('/media/sf_LinuxShare/data/20161009/CombinedData/Science')
+os.chdir('/media/sf_LinuxShare/CSVcheck/CombinedData/Science')
 
 for scienceobject in ALL_FILES:
 
     viewfile1 = open(scienceobject, 'r')
     # reads each line of file
     viewascsv1 = csv.reader(viewfile1, dialect='excel')
-    # skips header lines
+    # skips header line
     next(viewascsv1)
 
     writehere = open('truemags_' + scienceobject[7:], 'w')
@@ -88,10 +91,13 @@ for scienceobject in ALL_FILES:
     writer.writerow(['#Name', 'Filter', 'True Magnitude'])
 
     starname = scienceobject[7:-4]
+
+    print('Analysing', starname)
     # get magnitude for each filter from flux in each filter
     object_mags = []
     for line1 in viewascsv1:
-
+        if str(line1[0]) == '-1':
+            object_mags.append('NoData')
         # create a list with raw mag for each filter, order B V R I
         object_mags.append(float(instr_mag(line1[-2])))
 
@@ -127,6 +133,9 @@ for scienceobject in ALL_FILES:
             temp1 = object_mags[3] - float(I_cal_list[1]) - (float(I_cal_list[0]) * (object_mags[1] - object_mags[3]))
             temp2 = (ATMOSPHERECONSTANTS['I'] * float(line[8]))
             true_magnitude = temp1 - temp2
+
+        elif str(line[-1]) == '-1':
+            continue
 
         else:
             print('Oops, something went wrong! Invalid filter name, exiting...')
