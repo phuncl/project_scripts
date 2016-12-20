@@ -4,15 +4,16 @@ write to a CSV file, append exposure times to end of
 each line.
 """
 
-import glob as g
 import os
 import csv
+import glob as g
 
-FILTERS = ['B/','V/','R/','I/']
+FILTERS = ['B/', 'V/', 'R/', 'I/']
 CWD = os.getcwd()
 
+
 def sort_in_folder():
-    # create a list of photometry files with target folder
+    """create a list of photometry files with target folder"""
     file_list = g.glob('*.phot')
     for filename in file_list:
         # take off extension
@@ -33,7 +34,8 @@ def sort_in_folder():
                     grouptocsv = open(writefilename, 'w')
                     output = csv.writer(grouptocsv, dialect='excel')
 
-                    headers = ['#BJD','OBJECT_ID','X','Y','RSI','RSO','COUNTS','COUNTS_ERR','AIRMASS','FLAG','COUNTS_MAX']
+                    headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS',
+                               'COUNTS_ERR', 'AIRMASS', 'FLAG', 'COUNTS_MAX']
                     output.writerow(headers)
                     grouptocsv.close()
 
@@ -53,14 +55,16 @@ def sort_in_folder():
                 grouptocsv.close()
         readfile.close()
 
-'''
-Want to scan through B,V,R,I folders within a data folder automatically.
-This program should be launched from within the data folder.
-'''
+# '''
+# Want to scan through B,V,R,I folders within a data folder automatically.
+# This program should be launched from within the data folder.
+# '''
+
 
 def subdir_listing():
-    # obtain a list of all subdirectories
-    subdirectories_temp = os.listdir('.') # list dirs in that filter - should be same for all filters!
+    """obtain a list of all subdirectories"""
+    # list dirs in that filter - should be same for all filters!
+    subdirectories_temp = os.listdir('.')
     subdirectories = []
     for entry in subdirectories_temp:
         if '.' not in entry:
@@ -68,9 +72,9 @@ def subdir_listing():
     os.chdir(CWD)
     return subdirectories
 
-#################################################################
-########################    MAIN    #############################
-#################################################################
+#
+# MAIN
+#
 
 # navigate on a per filter basis
 for filtername in FILTERS:

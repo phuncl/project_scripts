@@ -6,52 +6,57 @@ Program should be run from central data folder
 """
 
 import os
-import glob as g
 import csv
+import glob as g
 
 CWD = os.getcwd()
-FILTERS = ['B','V','R','I']
+FILTERS = ['B', 'V', 'R', 'I']
 
 ###############################################################
+
+
 def median_flux(listy):
+    """Find median value of a list (higher value for even number)"""
     listy.sort()
     length = len(listy)
-    mid_index = int((length+1)/2 -1)
+    mid_index = int((length+1)/2 - 1)
 
     return listy[mid_index]
+
+
 ###############################################################
 
-os.chdir('CombinedData/Science/')
-objectslist = g.glob('sorted*')
-#objectslist = ['sorted_Berkeley18_33.csv']
+os.chdir('CombinedData/Science/')  # change back to Science!!!!
+OBJECTSLIST = g.glob('sorted*')
+# objectslist = ['sorted_Berkeley18_33.csv']
 
 # for each file, take median value for each filter
-for object in objectslist:
-    objectfile = open(object, 'r')
-    objectreader = csv.reader(objectfile, dialect='excel')
+for objectfile in OBJECTSLIST:
+    object2csv = open(objectfile, 'r')
+    objectreader = csv.reader(object2csv, dialect='excel')
     # skip header line
     next(objectreader)
 
-    print('Finding median values for', object)
+    print('Finding median values for', objectfile)
 
     # initialise list of lists for each filter
     b_lines = []
     v_lines = []
     r_lines = []
     i_lines = []
-    lines_set = [b_lines,v_lines,r_lines,i_lines]
+    lines_set = [b_lines, v_lines, r_lines, i_lines]
 
     for line in objectreader:
         lines_set[FILTERS.index(line[-1])].append(line)
 
-    objectfile.close()
+    object2csv.close()
 
     out_lines = []
 
-    for set in lines_set:
+    for f_set in lines_set:
         temp_fluxlist = []
 
-        for line in set:
+        for line in f_set:
             # make a list of flux values
             if float(line[-2]) > 0:
                 temp_fluxlist.append(line[-2])
@@ -59,7 +64,7 @@ for object in objectslist:
         if temp_fluxlist:
             medianflux = median_flux(temp_fluxlist)
 
-            for line in set:
+            for line in f_set:
                 if line[-2] == medianflux:
                     out_lines.append(line)
                     break
@@ -72,11 +77,13 @@ for object in objectslist:
     print('Median flux values determined for file!')
     # write to file
 
-    outputname = 'medians_' + object.split('_',1)[1]
+    outputname = 'medians_' + objectfile.split('_', 1)[1]
     outputfile = open(outputname, 'w')
-    outputwriter = csv.writer(outputfile,dialect='excel')
+    outputwriter = csv.writer(outputfile, dialect='excel')
 
-    headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR', 'AIRMASS', 'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER']
+    headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS',
+               'COUNTS_ERR', 'AIRMASS', 'FLAG', 'COUNTS_MAX',
+               'EXPOSURE', 'FLUX', 'FILTER']
 
     outputwriter.writerow(headers)
     outputwriter.writerows(out_lines)
