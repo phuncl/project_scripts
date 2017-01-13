@@ -135,7 +135,7 @@ def zeropoint():
     # write standards catalogue data to dictionary
     STDdict = {}
     for line in STDreader:
-        STDdict[line[-1]] = line[1:-1]
+        STDdict[line[-1]] = line[:-1]
     STDfile.close()
 
     # open compiled file
