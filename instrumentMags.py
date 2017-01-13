@@ -184,7 +184,6 @@ os.chdir('..')
 os.chdir('Science')
 print('Processing Science targets...')
 aa_mag_calc()
-medianmag()
 
 print('All instrumental above-atmosphere magnitudes calculated!')
 
