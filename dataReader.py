@@ -13,6 +13,7 @@ import csv
 FILTERS = ['B', 'V', 'R', 'I']
 CWD = os.getcwd()
 
+# FUNCTION DEFINITIONS
 
 def get_fluxed(list):
     # is it overexposed
@@ -20,8 +21,8 @@ def get_fluxed(list):
     exposure = int(list[-1])
     counts = float(list[6])
 
-    # Carry over only appropriate data (not over- or under-exposed
-    if  0 < max_count <= 40000:
+    # Carry over only appropriate data (not over- or under-exposed - minimum counts?)
+    if  0 < max_count <= 40000 and counts > 0:
         # convert counts into flux
         flux = counts / float(exposure)
         return flux
@@ -33,25 +34,6 @@ def instr_mag(flux):
     # Calculate the instrumental magnitude using flux
     mag = np.log10(flux) * -2.5
     return mag
-
-
-'''
-def arraysplitter(filename):
-    # Split data from a phot file into lists for easier use
-    bjd_list = []
-    object_list = []
-    data_list = []
-    # Open the data file
-    datafile = open(filename, 'r')
-    lineread = csv.reader(datafile, dialect='excel')
-    for line in lineread:
-        # extract data and append to appropriate list
-        bjd_list.append(float(line[0]))
-        object_list.append(str(line[1]))
-        data_list.append(line[2:])
-
-    return bjd_list, object_list, data_list
-'''
 
 
 def get_sciencetargets():
@@ -169,7 +151,7 @@ def combine_science():
                         flux = get_fluxed(line)  # takes a list!
                         if flux != 0:
                             line.append(flux)
-                            line.append(flux)
+                            line.append(filter)
                             combinedwriter.writerow(line)
                     combinedfile.close()
                     print(object + ' complete')
@@ -183,9 +165,7 @@ def combine_science():
     return 0
 
 
-##########################################################
-################ TESTING THE FUNCTION ####################
-##########################################################
+# MAIN FUNCTION
 
 SCIENCE_TARGETS = get_sciencetargets()
 STANDARDS = get_standards()
@@ -208,4 +188,8 @@ BEGINNING SCIENCE DATA ANALYSIS...
 """)
 time.sleep(2)
 combine_science()
+
+if not os.path.isfile('CombinedData/Standards/ing_standards.csv'):
+    print('ING standards data file not yet in the Standards folder!')
+
 print('Exiting...')
