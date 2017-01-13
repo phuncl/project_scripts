@@ -38,7 +38,7 @@ next(INGread)
 
 INGdict = {}
 for line in INGread:
-    INGdict[line[-1]] = line[1:-1]
+    INGdict[line[-1]] = line[0:-1]
 INGopen.close()
 
 mdopen = open('median_aamags.csv', 'r')
