@@ -1,9 +1,9 @@
 """
-For each file in a target folder, extract all data and
-write to a CSV file, append exposure times to end of
-each line.
+For each file in a target folder, extract all data and write
+to a CSV file, append exposure times to end of each line.
+Want to scan through B,V,R,I within a data folder automatically.
+This program should be launched from within the data folder.
 """
-
 import glob as g
 import os
 import csv
@@ -25,22 +25,12 @@ def sort_in_folder():
                 line = templine[:-1].split('  ')
                 # name object
                 object_id = line[1]
-
                 # create/open csv file for object
                 writefilename = 'sorted_' + str(file_prefix) + '_' + str(object_id) + '.csv'
-                if not os.path.isfile(writefilename):
-                    print(writefilename, 'is being created...')
-                    grouptocsv = open(writefilename, 'w')
-                    output = csv.writer(grouptocsv, dialect='excel')
-
-                    headers = ['#BJD','OBJECT_ID','X','Y','RSI','RSO','COUNTS','COUNTS_ERR','AIRMASS','FLAG','COUNTS_MAX']
-                    output.writerow(headers)
-                    grouptocsv.close()
 
                 print(writefilename, 'is being updated...')
                 grouptocsv = open(writefilename, 'a')
                 outputwrite = csv.writer(grouptocsv, dialect='excel')
-
                 # attach exposure time to line and write to file
                 exposure = int((filename.split('-')[2])[1:])
 
@@ -53,10 +43,6 @@ def sort_in_folder():
                 grouptocsv.close()
         readfile.close()
 
-'''
-Want to scan through B,V,R,I folders within a data folder automatically.
-This program should be launched from within the data folder.
-'''
 
 def subdir_listing():
     # obtain a list of all subdirectories

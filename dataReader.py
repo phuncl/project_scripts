@@ -84,7 +84,7 @@ def combine_standards():
                         tmp_combinedfile = open(CWD + '/CombinedData/Standards/' + object, 'w')
                         tmp_writer = csv.writer(tmp_combinedfile, dialect='excel')
 
-                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR', 'AIRMASS',
+                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR', 'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
                                    'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER']
 
                         tmp_writer.writerow(headers)
@@ -137,7 +137,7 @@ def combine_science():
                         tmp_combinedfile = open(CWD + '/CombinedData/Science/' + object, 'w')
                         tmp_writer = csv.writer(tmp_combinedfile, dialect='excel')
 
-                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR', 'AIRMASS',
+                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR', 'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
                                    'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER']
 
                         tmp_writer.writerow(headers)
@@ -163,7 +163,6 @@ def combine_science():
         print(filter, 'complete')
     os.chdir(CWD)
     return 0
-
 
 # MAIN FUNCTION
 
