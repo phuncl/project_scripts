@@ -61,7 +61,7 @@ def aa_mag_calc():
             filedata[i].append(above_atmos_mag)
 
         # open new output file
-        magfile = open('aamag_'+filename[9:], 'w')
+        magfile = open('aamag_'+filename[7:], 'w')
         magwriter = csv.writer(magfile)
 
         # write data to new file
