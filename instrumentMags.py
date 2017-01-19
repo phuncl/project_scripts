@@ -50,6 +50,11 @@ def aa_mag_calc():
             flux = float(filedata[i][14])
             airmass = float(filedata[i][10])
             filtername = str(filedata[i][15])
+            signoise = float(filedata[i][-1])
+
+            # skip stars with SN ratio below 10
+            if signoise < 10:
+                continue
 
             # get instrumental magnitude
             inst_mag = -2.5 * np.log10(flux)
