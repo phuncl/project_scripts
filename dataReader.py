@@ -12,6 +12,7 @@ import csv
 # Global Constants
 FILTERS = ['B', 'V', 'R', 'I']
 CWD = os.getcwd()
+GAIN = 1.22
 
 # FUNCTION DEFINITIONS
 
@@ -28,6 +29,24 @@ def get_fluxed(list):
         return flux
     else:
         return 0
+
+
+def snratio(counts, sky_background, gain):
+    """
+    calculate signal to noise ratio, disregarding read noise and
+    dark current
+
+    :param counts: float type, number of electrons, needs conversion
+    to photons by gain division
+    :param sky_background: ditto
+    :param gain: number of electrons created per photon detected
+    :return: object counts / noise
+    """
+    signal = float(counts) / float(gain)
+    object_noise = np.sqrt(float(counts) / float(gain))
+    background_noise = np.sqrt(float(sky_background) / float(gain))
+
+    return signal / (object_noise + background_noise)
 
 
 def instr_mag(flux):
@@ -84,8 +103,9 @@ def combine_standards():
                         tmp_combinedfile = open(CWD + '/CombinedData/Standards/' + object, 'w')
                         tmp_writer = csv.writer(tmp_combinedfile, dialect='excel')
 
-                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR', 'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
-                                   'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER']
+                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR',
+                                   'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
+                                   'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER', 'SNR']
 
                         tmp_writer.writerow(headers)
                         tmp_combinedfile.close()
@@ -96,9 +116,16 @@ def combine_standards():
 
                     for line in datareader:
                         flux = get_fluxed(line)  # takes a list!
+                        object_counts = line[6]
+                        sky_background_counts = line[8]
+
+                        # work out signal to noise ratio, add it to end of line
+                        snr = snratio(object_counts, sky_background_counts, GAIN)
+
                         if flux != 0:
                             line.append(flux)
                             line.append(filter)
+                            line.append(snr)
 
                             combinedwriter.writerow(line)
                     combinedfile.close()
@@ -137,8 +164,9 @@ def combine_science():
                         tmp_combinedfile = open(CWD + '/CombinedData/Science/' + object, 'w')
                         tmp_writer = csv.writer(tmp_combinedfile, dialect='excel')
 
-                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR', 'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
-                                   'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER']
+                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR',
+                                   'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
+                                   'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER', 'SNR']
 
                         tmp_writer.writerow(headers)
                         tmp_combinedfile.close()
@@ -149,9 +177,17 @@ def combine_science():
 
                     for line in datareader:
                         flux = get_fluxed(line)  # takes a list!
+                        object_counts = line[6]
+                        sky_background_counts = line[8]
+
+                        # work out signal to noise ratio and add it to end of line
+                        snr = snratio(object_counts, sky_background_counts, GAIN)
+
                         if flux != 0:
                             line.append(flux)
                             line.append(filter)
+                            line.append(snr)
+
                             combinedwriter.writerow(line)
                     combinedfile.close()
                     print(object + ' complete')
