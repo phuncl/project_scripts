@@ -9,7 +9,7 @@ import os
 import glob as g
 import numpy as np
 
-# atmospheric constants taken from Dhillon methodolgy - can be modified
+# atmospheric constants taken from Dhillon methodolgy - can be modified!
 ATMOSPHERIC = {'B': 0.25, 'V': 0.15, 'R': 0.09, 'I': 0.06}
 FILTERS = {'B':0, 'V':1, 'R':2, 'I':3}
 
@@ -47,9 +47,9 @@ def aa_mag_calc():
         # for each data row
         for i in range(0,len(filedata)):
             # read relevant values
-            flux = float(filedata[i][12])
-            airmass = float(filedata[i][8])
-            filtername = str(filedata[i][13])
+            flux = float(filedata[i][14])
+            airmass = float(filedata[i][10])
+            filtername = str(filedata[i][15])
 
             # get instrumental magnitude
             inst_mag = -2.5 * np.log10(flux)
@@ -61,7 +61,7 @@ def aa_mag_calc():
             filedata[i].append(above_atmos_mag)
 
         # open new output file
-        magfile = open('aamag_'+filename[7:], 'w')
+        magfile = open('aamag_'+filename[9:], 'w')
         magwriter = csv.writer(magfile)
 
         # write data to new file
@@ -72,6 +72,7 @@ def aa_mag_calc():
         magfile.close()
 
         print(filename, 'processed.\n')
+
 
 def medianmag():
     FILELIST = g.glob('aamag*')
@@ -104,7 +105,6 @@ def medianmag():
                 starname = line[1]
                 print('Analysing', starname)
         fileopen.close()
-
         # compute median values
         Bmed = np.median(Bdata)
         Vmed = np.median(Vdata)
@@ -115,7 +115,6 @@ def medianmag():
         print('Output line:\n', outline)
 
         outdata.append(outline)
-
     # initialise compilation file
     # and then write data from list of lists
     mdopen = open(mdnam, 'w+')
@@ -125,7 +124,6 @@ def medianmag():
     mdopen.close()
 
     print('All object medians recorded in', mdnam)
-
 
 def zeropoint():
     # open standards catalogue file
@@ -159,13 +157,10 @@ def zeropoint():
         for i in range(0,4):
             zeropt = float(STDdict[starname][i]) - float(dataline[i+1])
             zpline.append(zeropt)
-
         # write data line to zeromags
         zerowriter.writerow(zpline)
 
     zeromags.close()
-
-
 
 ####################################################################
 
