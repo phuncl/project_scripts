@@ -39,7 +39,8 @@ def aa_mag_calc():
         # read data into temp list of lists
         filedata = []
         for row in filereader:
-            filedata.append(row)
+            if float(row[-1]) > 10:
+                filedata.append(row)
 
         # close file
         fileopen.close()
@@ -50,11 +51,6 @@ def aa_mag_calc():
             flux = float(filedata[i][14])
             airmass = float(filedata[i][10])
             filtername = str(filedata[i][15])
-            signoise = float(filedata[i][-1])
-
-            # skip stars with SN ratio below 10
-            if signoise < 10:
-                continue
 
             # get instrumental magnitude
             inst_mag = -2.5 * np.log10(flux)
@@ -100,11 +96,10 @@ def medianmag():
         Idata = []
         filterdata = [Bdata, Vdata, Rdata, Idata]
 
-        # read each aa_mag into relevant filter list
+        # read each aa_mag value into relevant filter list
         starname = 0
-
         for line in fileread:
-            filterdata[FILTERS[line[-3]]].append(float(line[-2]))
+            filterdata[FILTERS[line[-3]]].append(float(line[-1]))
             if not starname:
                 starname = line[1]
                 print('Analysing', starname)
