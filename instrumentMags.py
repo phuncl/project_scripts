@@ -88,7 +88,6 @@ def medianmag():
 
     # for each file
     for filename in FILELIST:
-        filestub = filename[6:]
         fileopen = open(filename, 'r')
         fileread = csv.reader(fileopen)
         # skip headers
@@ -105,7 +104,7 @@ def medianmag():
         starname = 0
 
         for line in fileread:
-            filterdata[FILTERS[line[-2]]].append(float(line[-1]))
+            filterdata[FILTERS[line[-3]]].append(float(line[-2]))
             if not starname:
                 starname = line[1]
                 print('Analysing', starname)
