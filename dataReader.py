@@ -117,7 +117,7 @@ def combine_standards():
                     for line in datareader:
                         flux = get_fluxed(line)  # takes a list!
                         object_counts = line[6]
-                        sky_background_counts = line[8]
+                        sky_background_counts = float(line[8]) - float(line[6])
 
                         # work out signal to noise ratio, add it to end of line
                         snr = snratio(object_counts, sky_background_counts, GAIN)
@@ -178,7 +178,7 @@ def combine_science():
                     for line in datareader:
                         flux = get_fluxed(line)  # takes a list!
                         object_counts = line[6]
-                        sky_background_counts = line[8]
+                        sky_background_counts = float(line[8]) - float(line[6])
 
                         # work out signal to noise ratio and add it to end of line
                         snr = snratio(object_counts, sky_background_counts, GAIN)
@@ -192,11 +192,13 @@ def combine_science():
                     combinedfile.close()
                     print(object + ' complete')
 
-            except:
-                print('Some error occured!', name, 'not processed!\n')
+            except OSError:
+                print('Folder was not found.', name, 'not processed!')
+                time.sleep(1)
 
             print(name, 'complete')
-        print(filter, 'complete')
+        print(filter, 'complete\n')
+        time.sleep(2)
     os.chdir(CWD)
     return 0
 
