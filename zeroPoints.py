@@ -90,11 +90,17 @@ def correct_science(filename):
     Rvals = []
     Ivals = []
     values = [Bvals, Vvals, Rvals, Ivals]
+    Bsnr = []
+    Vsnr = []
+    Rsnr = []
+    Isnr = []
+    snrs = [Bsnr, Vsnr, Rsnr, Isnr]
 
     clustername = filename.split('_')[1]
     starnametmp = filename.split('_')[-1]
     starname = starnametmp.split('.')[0]
 
+    datablock = []
     # separate data by filter
     with open(filename, 'r') as infile:
         reader = csv.reader(infile)
@@ -102,8 +108,13 @@ def correct_science(filename):
         next(reader)
 
         for line in reader:
-            if not math.isnan(float(line[-1])):
-                values[FILTERS[line[-2]]].append(float(line[-1]))
+            datablock.append(line)
+
+    for line in datablock:
+        if not math.isnan(float(line[-1])):
+            values[FILTERS[line[3]]].append(float(line[-1]))
+            snrs[FILTERS[line[3]]].append(float(line[-2]))
+
 
     # produce median aa mag for target
     med_aamags = filter_medians(values)
@@ -151,13 +162,12 @@ for cluster in clusternames:
     mkfilename = 'true_mags_{0}.csv'.format(str(cluster))
     with open(mkfilename, 'w') as out:
         quickwrite = csv.writer(out)
-        quickwrite.writerow(['#OBJ_ID','B','V','R','I'])
+        quickwrite.writerow(['#OBJ_ID','B','V','R','I','SNR'])
     # create dictionary key for the cluster
     true_mags[cluster] = []
 
 print('\nBeginning magnitude corrections...\n')
 time.sleep(2)
-
 # from each file get a list of median corrected magnitude
 for eachfile in SCI_list:
     clust, magnitudes = correct_science(eachfile)
@@ -168,3 +178,25 @@ for key in true_mags:
     with open(writefilename, 'a') as writefile:
         writer = csv.writer(writefile)
         writer.writerows(true_mags[key])
+
+# same for poor mags
+POOR_list = g.glob('pooraamag*')
+poor_mags = {}
+# initialise file for each cluster
+for cluster in clusternames:
+    mkfilename = 'true_poormags_{0}.csv'.format(str(cluster))
+    with open(mkfilename, 'w') as out:
+        quickwrite = csv.writer(out)
+        quickwrite.writerow(['#OBJ_ID','B','V','R','I','SNR'])
+    # create dictionary key for the cluster
+    poor_mags[cluster] = []
+
+for poorfile in POOR_list:
+    poorclust, poormag = correct_science(poorfile)
+    poor_mags[poorclust].append(poormag)
+
+for key in poor_mags:
+    writepoorname = 'true_poormags_{0}.csv'.format(str(key))
+    with open(writepoorname, 'a') as poorout:
+        poorwriter = csv.writer(poorout)
+        poorwriter.writerows(poor_mags[key])

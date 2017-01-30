@@ -103,9 +103,7 @@ def combine_standards():
                         tmp_combinedfile = open(CWD + '/CombinedData/Standards/' + object, 'w')
                         tmp_writer = csv.writer(tmp_combinedfile, dialect='excel')
 
-                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR',
-                                   'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
-                                   'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER', 'SNR']
+                        headers = ['#OBJECT_ID', 'AIRMASS', 'FLUX', 'FILTER', 'SNR']
 
                         tmp_writer.writerow(headers)
                         tmp_combinedfile.close()
@@ -116,6 +114,7 @@ def combine_standards():
 
                     for line in datareader:
                         flux = get_fluxed(line)  # takes a list!
+                        #flux_err = float(line[7])/float((line[-1]))
                         object_counts = line[6]
                         sky_background_counts = float(line[8]) - float(line[6])
 
@@ -124,10 +123,12 @@ def combine_standards():
 
                         if flux != 0:
                             line.append(flux)
+                            #line.append(flux_err)
                             line.append(filter)
                             line.append(snr)
 
-                            combinedwriter.writerow(line)
+                            outrow = [line[1]] + [line[10]] + line[14:]
+                            combinedwriter.writerow(outrow)
                     combinedfile.close()
                     print(object + ' complete')
 
@@ -164,9 +165,7 @@ def combine_science():
                         tmp_combinedfile = open(CWD + '/CombinedData/Science/' + object, 'w')
                         tmp_writer = csv.writer(tmp_combinedfile, dialect='excel')
 
-                        headers = ['#BJD', 'OBJECT_ID', 'X', 'Y', 'RSI', 'RSO', 'COUNTS', 'COUNTS_ERR',
-                                   'SKY_COUNTS', 'SKY_COUNTS_ERR', 'AIRMASS',
-                                   'FLAG', 'COUNTS_MAX', 'EXPOSURE', 'FLUX', 'FILTER', 'SNR']
+                        headers = ['#OBJECT_ID', 'AIRMASS', 'FLUX', 'FILTER', 'SNR']
 
                         tmp_writer.writerow(headers)
                         tmp_combinedfile.close()
@@ -177,6 +176,7 @@ def combine_science():
 
                     for line in datareader:
                         flux = get_fluxed(line)  # takes a list!
+                        #flux_err = float(line[7])/float((line[-1]))
                         object_counts = line[6]
                         sky_background_counts = float(line[8]) - float(line[6])
 
@@ -185,10 +185,12 @@ def combine_science():
 
                         if flux != 0:
                             line.append(flux)
+                            #line.append(flux_err)
                             line.append(filter)
                             line.append(snr)
 
-                            combinedwriter.writerow(line)
+                            outrow = [line[1]] + [line[10]] + line[14:]
+                            combinedwriter.writerow(outrow)
                     combinedfile.close()
                     print(object + ' complete')
 

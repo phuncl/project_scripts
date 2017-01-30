@@ -37,29 +37,18 @@ def aa_mag_calc():
         HEADERS.append('AA_MAG')
 
         # read data into temp list of lists
+        alldata = []
         filedata = []
         for row in filereader:
+            alldata.append(row)
             if float(row[-1]) > 10:
                 filedata.append(row)
+
 
         # close file
         fileopen.close()
 
-        # for each data row
-        for i in range(0,len(filedata)):
-            # read relevant values
-            flux = float(filedata[i][14])
-            airmass = float(filedata[i][10])
-            filtername = str(filedata[i][15])
-
-            # get instrumental magnitude
-            inst_mag = -2.5 * np.log10(flux)
-
-            # apply first order atmosphere correction
-            # (can here add second order correction too)
-            above_atmos_mag = inst_mag - (airmass * ATMOSPHERIC[filtername])
-
-            filedata[i].append(above_atmos_mag)
+        filedata = inst_to_aa(filedata)
 
         # open new output file
         magfile = open('aamag_'+filename[7:], 'w')
@@ -68,18 +57,47 @@ def aa_mag_calc():
         # write data to new file
         magwriter.writerow(HEADERS)
         magwriter.writerows(filedata)
+        # close new file
+        magfile.close()
 
+        alldata = inst_to_aa(alldata)
+
+        # open new output file
+        magfile = open('pooraamag_'+filename[7:], 'w')
+        magwriter = csv.writer(magfile)
+
+        # write data to new file
+        magwriter.writerow(HEADERS)
+        magwriter.writerows(alldata)
         # close new file
         magfile.close()
 
         print(filename, 'processed.\n')
 
 
+def inst_to_aa(listoflist):
+    # for each data row
+    for i in range(0, len(listoflist)):
+        # read relevant values
+        flux = float(listoflist[i][2])
+        airmass = float(listoflist[i][1])
+        filtername = str(listoflist[i][3])
+        #snr = float(listoflist[i][4])
+
+        # get instrumental magnitude
+        inst_mag = -2.5 * np.log10(flux)
+
+        # apply first order atmosphere correction
+        # (can here add second order correction too)
+        above_atmos_mag = inst_mag - (airmass * ATMOSPHERIC[filtername])
+
+        listoflist[i].append(above_atmos_mag)
+    return listoflist
+
+
 def medianmag():
     FILELIST = g.glob('aamag*')
-
     mdnam = 'median_aamags.csv'
-
     outdata = []
 
     # for each file
@@ -99,9 +117,9 @@ def medianmag():
         # read each aa_mag value into relevant filter list
         starname = 0
         for line in fileread:
-            filterdata[FILTERS[line[-3]]].append(float(line[-1]))
+            filterdata[FILTERS[line[3]]].append(float(line[5]))
             if not starname:
-                starname = line[1]
+                starname = line[0]
                 print('Analysing', starname)
         fileopen.close()
         # compute median values
@@ -180,5 +198,3 @@ print('Processing Science targets...')
 aa_mag_calc()
 
 print('All instrumental above-atmosphere magnitudes calculated!')
-
-

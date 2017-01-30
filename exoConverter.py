@@ -53,10 +53,18 @@ print('Done!\n')
 # write to new file in exonailer/transit_data
 os.chdir('/media/sf_LinuxShare/pythonscripts/exonailer/transit_data/')
 print('Writing data to file in', os.getcwd(), '...')
-out_name = trans_data[:-4] + '.dat'
+out_name = trans_data.split('_')[1] + '_lc.dat'
 with open(out_name, 'w') as outf:
     outw = csv.writer(outf)
     outw.writerows(output_frame)
 
 print('Done!\n')
-print('Data converted to format readable by exonailer, and saved in', out_name)
+print('Data converted to format readable by exonailer, and saved', out_name, 'in exonailer/transit_data/')
+
+os.chdir('/media/sf_LinuxShare/pythonscripts/exonailer/priors_data/')
+priorsname = trans_data.split('_')[1] + '_priors.dat'
+with open(priorsname, 'w') as pf:
+    pf.write('PARAM_NAME,PARAM_TYPE,HYPER_PARAMS\n')
+print('Created an empty parameters file,', priorsname, 'in exonailer/priors_data/')
+
+print('Program complete!')
