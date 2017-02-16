@@ -11,10 +11,9 @@ for i, entry in enumerate(flist):
     print(str(i) + '\t' + entry)
 index = int(input('Give index of desired file: '))
 fname = flist[index]
-
+metallicity = fname.split('_')[1][1:]
+print('Metallicity Z = 0.{}'.format(metallicity))
 dict = {}
-
-colours = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'grey', 'black']
 
 with open(fname, 'r') as fiso:
     for line in fiso:
@@ -41,10 +40,10 @@ for key in dict:
         mag.append(pair[0])
         col.append(pair[1])
 
-    plt.plot(col, mag, '.', color=colours[colourcount], label=key)
+    plt.plot(col, mag, '.', label=key)
     colourcount += 1
 
-    outname = 'z0230/iso_t{}.dat'.format(key)
+    outname = 'files/iso_z{}_t{}.dat'.format(metallicity, key)
     with open(outname, 'w') as fout:
         fwrite = csv.writer(fout, delimiter = ' ')
         fwrite.writerow(['#Vmag', 'V-I'])
@@ -53,6 +52,6 @@ for key in dict:
 plt.gca().invert_yaxis()
 plt.xlabel('V-I')
 plt.ylabel('V')
-plt.title('CMDs for z=0.0230')
+plt.title('CMDs for z=0.{}'.format(metallicity))
 plt.legend(title = 'log(age)')
 plt.show()

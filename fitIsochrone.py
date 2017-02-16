@@ -9,10 +9,12 @@ import matplotlib.pyplot as plt
 import csv
 import math
 import glob as g
+
+
 def clust_pick():
     files = g.glob('true_mags_*')
-    for i, entry in enumerate(files):
-        print(str(i) + '\t' + entry)
+    for i, thing in enumerate(files):
+        print(str(i) + '\t' + thing)
     index = int(input('Give index of desired cluster file: '))
     choice = files[index]
 
@@ -33,9 +35,40 @@ def metal_pick():
     return current_isos, mpick
 
 
-def dist_mod_reddening():
-    d = float(input('What magnitude offset to add to isochrones? '))
-    red = float(input('What reddening correction to add to isochrones? '))
+def age_pick(priorpick):
+    if not priorpick:
+        print('log(age) values available are:')
+        ages = []
+        for i, item in enumerate(temp_isos):
+            age = item.split('_')[2][1:4]
+            ages.append(age)
+        ages.sort()
+        for j, item in enumerate(ages):
+            print(str(j) + '\t' + str(item))
+        agechoice = ages[int(input('Give index of desired age: '))]
+    else:
+        agechoice = priorpick
+
+    pluschoice = float(agechoice) + 0.1
+    minuschoice = float(agechoice) - 0.1
+    narrowed_isos = {}
+    for ckey in temp_isos:
+        if agechoice in ckey:
+            narrowed_isos[ckey] = temp_isos[ckey]
+        if str(pluschoice) in ckey:
+            narrowed_isos[ckey] = temp_isos[ckey]
+        if str(minuschoice) in ckey:
+            narrowed_isos[ckey] = temp_isos[ckey]
+
+    return narrowed_isos, agechoice
+
+
+def dist_mod_reddening(prev_offset, prev_reddening):
+    if prev_offset and prev_offset:
+        print('Previous offset =', prev_offset)
+        print('Previous reddening =', reddening)
+    d = float(input('\nWhat magnitude offset to add to isochrones? '))
+    red = float(input('\nWhat reddening correction to add to isochrones? '))
 
     return d, red
 
@@ -49,27 +82,27 @@ def plot_clust_isochrones(choice):
         mag_data = []
         col_data = []
 
-        for line in clust_read:
-            if math.isnan(float(line[1])) or math.isnan(float(line[3])):
+        for cline in clust_read:
+            if math.isnan(float(cline[1])) or math.isnan(float(cline[3])):
                 continue
-            mag_data.append(line[1])
-            col_data.append(float(line[1])-float(line[3]))
+            mag_data.append(cline[1])
+            col_data.append(float(cline[1])-float(cline[3]))
 
         # calculate distance
         power = float(offset)/5 + 1
-        distance = math.pow(10, power) + 10
+        distance = math.pow(10, power)
 
         print('Showing isochrone at a distance of', distance, 'pc.')
 
         plt.plot(col_data, mag_data, 'o', color='grey', alpha=0.75)
 
         keys = []
-        for key in temp_isos:
+        for key in used_isos:
             keys.append(key)
         keys.sort()
 
         for key in keys:
-            isodata = temp_isos[key]
+            isodata = used_isos[key]
             # create V and V-I columns
             isomag = []
             isocol = []
@@ -101,22 +134,25 @@ for i, entry in enumerate(isos):
     isodict[isoname] = []
     with open(entry, 'r') as isofile:
         isoread = csv.reader(isofile, delimiter = ' ')
-        next(isoread)
+        next(isoread)  # skip headers
         for line in isoread:
             isodict[isoname].append(line)
 
 metallicities = []
 for key in isodict:
-    newm = key.split('_')[2].split('.')[0][1:]
+    newm = key.split('_')[1].split('.')[0][1:]
     if newm not in metallicities:
         metallicities.append(newm)
 metallicities.sort()
 
+chosen_age = False
+
 cluster = clust_pick()
 temp_isos, metallicity = metal_pick()
-offset, reddening = dist_mod_reddening()
+used_isos,chosen_age = age_pick(chosen_age)
+offset, reddening = dist_mod_reddening(False, False)
 
-actions = ('Quit', 'Choose cluster', 'Set metallicity', 'Set distance modulus and reddening', 'Plot')
+actions = ('Quit', 'Choose cluster', 'Set metallicity estimate', 'Set age estimate', 'Set distance modulus and reddening', 'Plot')
 
 print('\nChoose an action:')
 for i,item in enumerate(actions):
@@ -128,14 +164,21 @@ while option != 0:
         cluster = clust_pick()
 
     elif option == 2:
-        zchoice, metallicity = metal_pick()
+        temp_isos, metallicity = metal_pick()
+        used_isos, chosen_age = age_pick(chosen_age)
+
 
     elif option == 3:
-        offset, reddening = dist_mod_reddening()
+        used_isos,chosen_age = age_pick(False)
 
     elif option == 4:
+        offset, reddening = dist_mod_reddening(offset, reddening)
+
+    elif option == 5:
         plot_clust_isochrones(cluster)
 
+    else:
+        continue
 
     print('\nChoose an action:')
     for i,item in enumerate(actions):
