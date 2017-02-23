@@ -116,7 +116,7 @@ def plot_clust_isochrones(choice):
         plt.ylabel('V')
         plt.legend(title='log(age)', loc=2)
         plt.title(choice.split("_")[-1].split(".")[0] + ' for z=0.{}'.format(metallicity))
-        plt.axis([-1,2,17,9])
+        plt.axis([-1,2,17,6])
         mng = plt.get_current_fig_manager()
         mng.resize(*mng.window.maxsize())
         plt.show()
