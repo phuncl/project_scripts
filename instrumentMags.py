@@ -167,7 +167,9 @@ def zeropoint():
     # for each line of data
     for dataline in compread:
         # initialise zpline with starname
-        starname = dataline[0]
+        starname = dataline[0].replace('-','_')
+        if not starname:
+            continue
         zpline = []
         zpline.append(starname)
 
@@ -197,4 +199,4 @@ os.chdir('Science')
 print('Processing Science targets...')
 aa_mag_calc()
 
-print('All instrumental above-atmosphere magnitudes calculated!')
+print('All instrumental above-atmosphere magnitudes calculated!\a')
