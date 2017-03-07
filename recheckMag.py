@@ -67,8 +67,7 @@ for line in mdread:
         # read catalogue values
         cats[i].append(INGdict[line[0].replace('-','_')][i])
 
-line = [9,15]
-
+line = [9,17]
 for j in range(0,4):
     fig = plt.figure()
     plt.plot(cats[j], vals[j], "o", color = 'red')
