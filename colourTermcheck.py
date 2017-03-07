@@ -4,11 +4,14 @@ for all standard stars, to find gradient with colour (cC term)
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
 import csv
 import math
 from scipy import stats
+from scipy.optimize import curve_fit
 
 FILTERS = {'B':0, 'V':1, 'R':2, 'I':3}
+ATMOS = [0.25, 0.15, 0.09, 0.06]
 
 # open zero point file and grab values
 with open('zero_magnitude_values.csv', 'r') as zpopen:
@@ -40,38 +43,50 @@ with open('median_aamags.csv', 'r') as mdopen:
         stardata.append(magnitudes)
 
 # plot colour term check figure for whatever filters
-# calculate and plot for V against B-V
-data = []
-colour = []
-
+# calculate and plot for V against V - I
+mag_discrepancy = []
+colourdata = []
 
 watson = 0
 moriarty = 0
 mycroft = 0
 
 for line in stardata:
-    if math.isnan(float(line[3])) or math.isnan(float(line[4])):
+    # line: name, B, V, R, I
+    if math.isnan(float(line[2])) or math.isnan(float(line[4])):
         continue
-    # Vdata = m_cat - m_aamag - m_zp
-    data.append(float(INGdict[line[0]][3]) - float(line[4]) - float(zpvals[3]))
-    # BminV = (B_aamag + B_zp) - (V_aamag + V_zp)
-    colour.append(float(line[3]) + float(zpvals[2]) - float(line[4]) - float(zpvals[3]))
+    else:
+        # V discrepancy = V_cat - V_aamag - V_zp
+        tempmag = float(INGdict[line[0]][1]) - float(line[2]) - float(zpvals[1])
 
-    holmes = float(INGdict[line[0]][3]) - float(line[4])
-    if holmes > watson:
-        watson = holmes
-        mycroft = moriarty
-        moriarty = str(line[0])
+        # V-I = V_true - I_true = V_aamag + V_zp - I_aamag - I_zp
+        tempcol = float(line[2]) + float(zpvals[1]) - float(line[4]) - float(zpvals[3])
 
+        if -0.5 < tempcol < 4:
+            mag_discrepancy.append(tempmag)
+            colourdata.append(tempcol)
+
+mag_discrep = np.asarray(mag_discrepancy)
+colour = np.asarray(colourdata)
+
+guess_grad = 0.1
+guess_int = 0
+
+
+def CT(x, grad, int):
+    return grad * x + int
+
+
+c_grad, c_int = curve_fit(CT, colour, mag_discrepancy)[0]
+print(c_grad, c_int)
 
 colourfig = plt.figure()
-plt.plot(colour, data, "o")
-plt.xlabel('R-I')
-plt.ylabel('I data')
+plt.plot(colour, mag_discrep, "o", color = 'grey', label = 'Data')
+plt.plot(colour, CT(colour, c_grad, c_int), color = 'red', label = 'Optimised fit')
+plt.xlabel('V-I')
+plt.ylabel('V_cat - V_obs')
+plt.legend(loc = 0)
 plt.show()
 
-slope, intercept, rval, pval, stderr = stats.linregress(colour, data)
+print('Slope:',c_grad, '\nIntercept:', c_int)
 
-print('Slope:',slope, '\nIntercept:', intercept)
-
-print(moriarty, mycroft)
