@@ -113,7 +113,8 @@ def medianmag():
         Imed = np.median(Idata)
         outline = [starname, Bmed, Vmed, Rmed, Imed]
         print('Output line:\n', outline)
-        outdata.append(outline)
+        if starname:
+            outdata.append(outline)
     # initialise compilation file
     # and then write data from list of lists
     mdopen = open(mdnam, 'w+')

@@ -12,6 +12,7 @@ import glob as g
 import math
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+import time
 
 ################################################################
 
@@ -209,7 +210,7 @@ def rezp_data_grab():
         if not math.isnan(float(line[1])):
             Bvals.append(float(line[1]))
 
-        if not math.isnan(float(line[2])):
+        if not math.isnan(float(line[2])) and not math.isnan(float(line[4])):
             # correction for V-I colour
             Vvals.append(float(line[2]) + c_int + c_grad * (float(line[2]) - float(line[4])))
 
@@ -231,6 +232,7 @@ def rezeropoint():
     for line in STDreader:
         STDdict[line[-1]] = line[:-1]
     STDfile.close()
+    print('Standard dictionary imported')
     # open compiled file
     compfile = open('median_aamags.csv', 'r')
     compread = csv.reader(compfile)
@@ -258,6 +260,8 @@ def rezeropoint():
                 zeropt = float(STDdict[starname][i]) - float(dataline[i+1])
             zpline.append(zeropt)
         # write data line to zeromags
+        print(starname, zpline)
+        time.sleep(0.5)
         zerowriter.writerow(zpline)
 
     zeromags.close()
@@ -271,6 +275,9 @@ os.chdir('CombinedData/Standards')
 initial_vals = zp_data_grab()
 # initial_vals used here in zp_calc
 initial_zp = zp_calc()
+print('Initial zero point magnitudes are:')
+for key in FILTERS:
+    print(key, initial_zp[FILTERS[key]])
 
 ######
 # CONTENT OF REZERO
@@ -278,16 +285,16 @@ initial_zp = zp_calc()
 colcheck_values = colour_check(initial_zp)
 c_int = float(colcheck_values[1])
 c_grad = float(colcheck_values[0])
+print(c_int, c_grad)
 
 rezeropoint()
 # get zp data, correct for colour term
 vals = rezp_data_grab()
 zp_vals = rezp_calc()
-#####
-
-print('Zero point magnitudes as as follows:')
+print('Recalculated zero point magnitudes are:')
 for key in FILTERS:
-    print('{}:\t{}'.format(key,zp_vals[FILTERS[key]]))
+    print(key, zp_vals[FILTERS[key]])
+#####
 
 # apply zero point magnitude to aa_mags for each science target
 # and compile all data into one file
